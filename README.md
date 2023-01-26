@@ -17,7 +17,8 @@ cd c2vsimfg-leaflet
 ```
 
 3. Start a local web server from the project directory
-   Using node.js
+
+Using node.js
 
 ```bash
 http-server -c-1
