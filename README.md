@@ -29,5 +29,5 @@ Using python
 python3 -m http.server
 ```
 
-4. Open webbrowser and go to http://localhost:<PORT>
-   the <PORT> will be noted when the webserver is started
+4. Open webbrowser and go to http://localhost:"PORT"
+   the "PORT" will be noted when the webserver is started
