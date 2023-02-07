@@ -1,8 +1,29 @@
+// declare variables
+var lyrOSM;
+var lyrESRIWorldImagery;
+
+var lyrElements;
+var lyrStreamReachesl;
+var lyrSmallWatersheds;
+var lyrSearch;
+var arrElementIDs = [];
+
+var baseMaps;
+var mapLayers;
+
+var layerControl;
+var sidebarControl;
+var sidebarButton;
+
+var modelMap;
+
+var fgpDrawnItems;
+
 $(document).ready(function () {
   /* BASE MAP LAYERS */
-  const lyrOSM = L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png");
+  lyrOSM = L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png");
 
-  const Esri_WorldImagery = L.tileLayer(
+  lyrESRIWorldImagery = L.tileLayer(
     "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     {
       attribution:
@@ -11,25 +32,60 @@ $(document).ready(function () {
   );
 
   // create map
-  const modelMap = L.map("map", {
+  modelMap = L.map("map", {
     center: [38.5816, -121.4944],
     zoom: 8,
-    layers: [lyrOSM, Esri_WorldImagery],
+    layers: [lyrOSM, lyrESRIWorldImagery],
+    contextmenu: true,
+    contextmenuWidth: 140,
+    contextmenuItems: [
+      {
+        text: "Show coordinates",
+        callback: showCoordinates,
+      },
+      {
+        text: "Center map here",
+        callback: centerMap,
+      },
+      "-",
+      {
+        text: "Zoom in",
+        icon: "images/magnifying-glass-plus-solid.svg",
+        callback: zoomIn,
+      },
+      {
+        text: "Zoom out",
+        icon: "images/magnifying-glass-minus-solid.svg",
+        callback: zoomOut,
+      },
+    ],
   });
 
+  fgpDrawnItems = new L.FeatureGroup();
+  fgpDrawnItems.addTo(modelMap);
+
   /* MAP DATA */
-  const lyrElements = L.geoJSON
+  lyrElements = L.geoJSON
     .ajax("data/i08_C2VSimFG_Elements.geojson", {
       style: styleElements,
       onEachFeature: processElements,
     })
     .addTo(modelMap);
 
-  const lyrStreamReaches = L.geoJSON
+  lyrElements.on("data:loaded", function () {
+    arrElementIDs.sort(function (a, b) {
+      return a - b;
+    });
+    $("#txt-find-element").autocomplete({
+      source: arrElementIDs,
+    });
+  });
+
+  lyrStreamReaches = L.geoJSON
     .ajax("data/i08_C2VSimFG_Stream_Reaches.geojson")
     .addTo(modelMap);
 
-  const lyrSmallWatersheds = L.geoJSON
+  lyrSmallWatersheds = L.geoJSON
     .ajax("data/i08_C2VSimFG_Small_Watersheds.geojson", {
       style: styleSWS,
       onEachFeature: processSWS,
@@ -37,26 +93,52 @@ $(document).ready(function () {
     .addTo(modelMap);
 
   // zoom to layer
-  lyrElements.on("data:loaded", function () {
-    modelMap.fitBounds(lyrElements.getBounds());
+  lyrSmallWatersheds.on("data:loaded", function () {
+    modelMap.fitBounds(lyrSmallWatersheds.getBounds());
   });
 
   /* MAP CONTROLS */
   // set-up layer control
-  const baseMaps = {
+  baseMaps = {
     "Open Street Map": lyrOSM,
-    "ESRI World Imagery": Esri_WorldImagery,
+    "ESRI World Imagery": lyrESRIWorldImagery,
   };
 
-  const mapLayers = {
+  mapLayers = {
     "C2VSimFG Elements": lyrElements,
     "C2VSimFG Stream Reaches": lyrStreamReaches,
     "C2VSimFG Small Watersheds": lyrSmallWatersheds,
   };
 
-  const layerControl = L.control.layers(baseMaps, mapLayers).addTo(modelMap);
+  //console.log(lyrElements.urls[0]);
 
-  //
+  layerControl = L.control.layers(baseMaps, mapLayers).addTo(modelMap);
+
+  sidebarControl = L.control.sidebar("side-bar").addTo(modelMap);
+
+  sidebarButton = L.easyButton(
+    '<i class="fa-solid fa-right-left"></i>',
+    function () {
+      sidebarControl.toggle();
+    }
+  ).addTo(modelMap);
+
+  /* context menu functionality */
+  function showCoordinates(e) {
+    alert(e.latlng);
+  }
+
+  function centerMap(e) {
+    modelMap.panTo(e.latlng);
+  }
+
+  function zoomIn(e) {
+    modelMap.zoomIn();
+  }
+
+  function zoomOut(e) {
+    modelMap.zoomOut();
+  }
 });
 
 /* USER INTERACTION */
@@ -67,11 +149,52 @@ function styleElements(json) {
   };
 }
 
+$("#txt-find-element").on("keyup paste", function () {
+  var val = $("#txt-find-element").val();
+  console.log(val);
+  testLayerAttribute(
+    arrElementIDs,
+    val,
+    "ElementID",
+    "#element-error-msg",
+    "#btn-find-element"
+  );
+});
+
+$("#btn-find-element").click(function () {
+  var val = $("#txt-find-element").val();
+  var lyr = returnLayerByAttribute(lyrElements, "ElementID", val);
+  if (lyr) {
+    if (lyrSearch) {
+      lyrSearch.remove();
+    }
+    lyrSearch = L.geoJSON(lyr.toGeoJSON(), {
+      style: { color: "red", weight: 10, opacity: 0.5 },
+    }).addTo(modelMap);
+    modelMap.fitBounds(lyr.getBounds().pad(1));
+    var att = lyr.feature.properties;
+    $("#element-data").html(
+      "<h4 class='text-center'>Attributes</h4><h5>Element ID: " +
+        att.ElementID +
+        "</h5><h5>Subregion: " +
+        att.SubRegion +
+        "</h5>"
+    );
+    $("#element-error-msg").html("");
+
+    fgpDrawnItems.clearLayers();
+    fgpDrawnItems.addLayer(lyr);
+  } else {
+    $("#element-error-msg").html("**** Element ID not found ****");
+  }
+});
+
 function processElements(json, lyr) {
   const att = json.properties;
   lyr.bindPopup(
     "<H4>Element ID: " + att.ElementID + "</H4>Subregion: " + att.SubRegion
   );
+  arrElementIDs.push(att.ElementID.toString());
 }
 
 function styleSWS(json) {
@@ -91,4 +214,27 @@ function processSWS(json, lyr) {
       "<br>Stream Node: " +
       att.STR_NODE
   );
+}
+
+function testLayerAttribute(arr, val, att, err, btn) {
+  console.log(arr);
+  console.log(arr.indexOf(val));
+  if (arr.indexOf(val) < 0) {
+    $(err).html("**** " + att + " NOT FOUND ****");
+    $(btn).prop("disabled", true);
+  } else {
+    $(err).html("");
+    $(btn).prop("disabled", false);
+  }
+}
+
+function returnLayerByAttribute(lyr, att, val) {
+  var arLayers = lyr.getLayers();
+  for (i = 0; i < arLayers.length - 1; i++) {
+    var ftrVal = arLayers[i].feature.properties[att];
+    if (ftrVal == val) {
+      return arLayers[i];
+    }
+  }
+  return false;
 }
