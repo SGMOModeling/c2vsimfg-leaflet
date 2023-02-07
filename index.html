@@ -21,7 +21,7 @@
 
     <script src="plugins/leaflet-src.js"></script>
     <script src="plugins/jquery-3.6.3.min.js"></script>
-    <script src="plugins/popper.min.js"></script>
+    <!--<script src="plugins/popper.min.js"></script>-->
     <script src="plugins/js/bootstrap.min.js"></script>
     <script src="plugins/L.Control.Sidebar.js"></script>
     <script src="plugins/easy-button.js"></script>
@@ -59,7 +59,7 @@
               <div class="container-fluid">
                 <div class="row">
                   <h3>Find Element by ID</h3>
-                  <form class="was-validated">
+                  <form>
                     <div class="input-group mb-3">
                       <input
                         type="text"
@@ -79,11 +79,41 @@
                         Find Element
                       </button>
                     </div>
-                    <div id="element-error-msg" class="invalid-feedback">
-                      Please provide a valid ElementID
-                    </div>
+                    <div id="element-error-msg"></div>
                     <div id="element-data"></div>
                   </form>
+                  <h3>Filter Elements by Subregion</h3>
+                  <select
+                    class="form-select"
+                    aria-label="multiple select example"
+                  >
+                    <option value="All" name="fltElements" selected>All</option>
+                    <option value="1" name="fltElements">Subregion 1</option>
+                    <option value="2" name="fltElements">Subregion 2</option>
+                    <option value="3" name="fltElements">Subregion 3</option>
+                    <option value="4" name="fltElements">Subregion 4</option>
+                    <option value="5" name="fltElements">Subregion 5</option>
+                    <option value="6" name="fltElements">Subregion 6</option>
+                    <option value="7" name="fltElements">Subregion 7</option>
+                    <option value="8" name="fltElements">Subregion 8</option>
+                    <option value="9" name="fltElements">Subregion 9</option>
+                    <option value="10" name="fltElements">Subregion 10</option>
+                    <option value="11" name="fltElements">Subregion 11</option>
+                    <option value="12" name="fltElements">Subregion 12</option>
+                    <option value="13" name="fltElements">Subregion 13</option>
+                    <option value="14" name="fltElements">Subregion 14</option>
+                    <option value="15" name="fltElements">Subregion 15</option>
+                    <option value="16" name="fltElements">Subregion 16</option>
+                    <option value="17" name="fltElements">Subregion 17</option>
+                    <option value="18" name="fltElements">Subregion 18</option>
+                    <option value="19" name="fltElements">Subregion 19</option>
+                    <option value="20" name="fltElements">Subregion 20</option>
+                    <option value="21" name="fltElements">Subregion 21</option>
+                  </select>
+                  <br />
+                  <button id="btnFltElements" class="btn btn-secondary">
+                    Filter Elements
+                  </button>
                 </div>
               </div>
             </div>
