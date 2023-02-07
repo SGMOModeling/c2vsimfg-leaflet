@@ -3,7 +3,7 @@ var lyrOSM;
 var lyrESRIWorldImagery;
 
 var lyrElements;
-var lyrStreamReachesl;
+var lyrStreamReaches;
 var lyrSmallWatersheds;
 var lyrSearch;
 var arrElementIDs = [];
@@ -65,10 +65,18 @@ $(document).ready(function () {
   fgpDrawnItems.addTo(modelMap);
 
   /* MAP DATA */
+  lyrStreamReaches = L.geoJSON
+    .ajax("data/i08_C2VSimFG_Stream_Reaches.geojson", {
+      style: styleStreamReaches,
+      onEachFeature: processStreamReaches,
+    })
+    .addTo(modelMap);
+
   lyrElements = L.geoJSON
     .ajax("data/i08_C2VSimFG_Elements.geojson", {
       style: styleElements,
       onEachFeature: processElements,
+      filter: filterElements,
     })
     .addTo(modelMap);
 
@@ -80,10 +88,6 @@ $(document).ready(function () {
       source: arrElementIDs,
     });
   });
-
-  lyrStreamReaches = L.geoJSON
-    .ajax("data/i08_C2VSimFG_Stream_Reaches.geojson")
-    .addTo(modelMap);
 
   lyrSmallWatersheds = L.geoJSON
     .ajax("data/i08_C2VSimFG_Small_Watersheds.geojson", {
@@ -105,8 +109,8 @@ $(document).ready(function () {
   };
 
   mapLayers = {
-    "C2VSimFG Elements": lyrElements,
     "C2VSimFG Stream Reaches": lyrStreamReaches,
+    "C2VSimFG Elements": lyrElements,
     "C2VSimFG Small Watersheds": lyrSmallWatersheds,
   };
 
@@ -174,11 +178,11 @@ $("#btn-find-element").click(function () {
     modelMap.fitBounds(lyr.getBounds().pad(1));
     var att = lyr.feature.properties;
     $("#element-data").html(
-      "<h4 class='text-center'>Attributes</h4><h5>Element ID: " +
+      "<h4 class='text-center'>Attributes</h4><table><tr><th>ElementID</th><th>Subregion</th></tr><tr><td>" +
         att.ElementID +
-        "</h5><h5>Subregion: " +
+        "</td><td>" +
         att.SubRegion +
-        "</h5>"
+        "</td></tr></table>"
     );
     $("#element-error-msg").html("");
 
@@ -196,6 +200,21 @@ function processElements(json, lyr) {
   );
   arrElementIDs.push(att.ElementID.toString());
 }
+
+function filterElements(json) {
+  var att = json.properties;
+  var optFilter = $("option[name=fltElements]:selected").val();
+  if (optFilter == "All") {
+    return true;
+  } else {
+    return att.SubRegion == optFilter;
+  }
+}
+
+$("#btnFltElements").click(function () {
+  arrElementIDs = [];
+  lyrElements.refresh();
+});
 
 function styleSWS(json) {
   return {
@@ -216,9 +235,19 @@ function processSWS(json, lyr) {
   );
 }
 
+function styleStreamReaches(json) {
+  return {
+    color: "blue",
+    weight: 2,
+  };
+}
+
+function processStreamReaches(json, lyr) {
+  const att = json.properties;
+  lyr.bindPopup("<h4>" + att.Name + "</h4><br>Stream Reach ID:" + att.StreamID);
+}
+
 function testLayerAttribute(arr, val, att, err, btn) {
-  console.log(arr);
-  console.log(arr.indexOf(val));
   if (arr.indexOf(val) < 0) {
     $(err).html("**** " + att + " NOT FOUND ****");
     $(btn).prop("disabled", true);
