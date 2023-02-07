@@ -1,3 +1,17 @@
+h1 {
+  font-family: Source Sans Pro, sans-serif;
+}
+
 #map {
   height: 100vh;
+}
+
+#txt-find-element {
+  gap: 20px;
+}
+
+.error-msg {
+  padding: 0;
+  text-align: center;
+  background-color: darksalmon;
 }
