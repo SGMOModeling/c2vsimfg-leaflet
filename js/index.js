@@ -214,6 +214,9 @@ function filterElements(json) {
 $("#btnFltElements").click(function () {
   arrElementIDs = [];
   lyrElements.refresh();
+  lyrElements.on("data:loaded", function () {
+    modelMap.fitBounds(lyrElements.getBounds());
+  });
 });
 
 function styleSWS(json) {
