@@ -21,8 +21,7 @@
 
     <script src="plugins/leaflet-src.js"></script>
     <script src="plugins/jquery-3.6.3.min.js"></script>
-    <!--<script src="plugins/popper.min.js"></script>-->
-    <script src="plugins/js/bootstrap.min.js"></script>
+    <script src="plugins/js/bootstrap.bundle.min.js"></script>
     <script src="plugins/L.Control.Sidebar.js"></script>
     <script src="plugins/easy-button.js"></script>
     <script src="plugins/leaflet.ajax.min.js"></script>
@@ -58,7 +57,7 @@
             <div class="accordion-body">
               <div class="container-fluid">
                 <div class="row">
-                  <h3>Find Element by ID</h3>
+                  <h4>Find Element by ID</h4>
                   <form>
                     <div class="input-group mb-3">
                       <input
@@ -82,7 +81,7 @@
                     <div id="element-error-msg"></div>
                     <div id="element-data"></div>
                   </form>
-                  <h3>Filter Elements by Subregion</h3>
+                  <h4 class="mt-3">Filter Elements by Subregion</h4>
                   <select
                     class="form-select"
                     aria-label="multiple select example"
@@ -110,8 +109,7 @@
                     <option value="20" name="fltElements">Subregion 20</option>
                     <option value="21" name="fltElements">Subregion 21</option>
                   </select>
-                  <br />
-                  <button id="btnFltElements" class="btn btn-secondary">
+                  <button id="btnFltElements" class="btn btn-secondary mt-3">
                     Filter Elements
                   </button>
                 </div>
