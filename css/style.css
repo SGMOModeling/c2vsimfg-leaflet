@@ -10,7 +10,7 @@ h1 {
   gap: 20px;
 }
 
-.error-msg {
+#element-error-msg {
   padding: 0;
   text-align: center;
   background-color: darksalmon;
